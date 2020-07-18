@@ -3,7 +3,7 @@ mod io;
 
 #[derive(Debug)]
 struct AppError {
-    s: &'static str
+    s: String
 }
 
 impl std::fmt::Display for AppError {
@@ -13,18 +13,14 @@ impl std::fmt::Display for AppError {
 }
 
 impl From<std::io::Error> for AppError {
-    fn from(_error: std::io::Error) -> AppError {
-        AppError { s: "IO Error" }
+    fn from(error: std::io::Error) -> AppError {
+        AppError { s: format!("IO Error: {}", error) }
     }
 }
 
 impl From<brainfuck::InterpretationError> for AppError {
     fn from(error: brainfuck::InterpretationError) -> AppError {
-        match error {
-            brainfuck::InterpretationError::NonAsciiCode => AppError { s: "Non ascii character" },
-            brainfuck::InterpretationError::UnmatchedLeftBracket => AppError { s: "Unmatched '['" },
-            brainfuck::InterpretationError::UnmatchedRightBracket => AppError { s: "Unmatched ']'" },
-        }
+        AppError { s: format!("Interpretation error: {}", error) }
     }
 }
 

@@ -1,3 +1,5 @@
+use std::fmt::Formatter;
+
 pub struct Interpreter {
     buf: std::vec::Vec<u8>,
     pos: usize,
@@ -8,6 +10,17 @@ pub enum InterpretationError {
     NonAsciiCode,
     UnmatchedRightBracket,
     UnmatchedLeftBracket,
+}
+
+impl std::fmt::Display for InterpretationError {
+    fn fmt(&self, f: &mut Formatter) -> std::fmt::Result {
+        let reason = match self {
+            InterpretationError::NonAsciiCode => "Non ascii character",
+            InterpretationError::UnmatchedLeftBracket => "Unmatched '['",
+            InterpretationError::UnmatchedRightBracket => "Unmatched ']"
+        };
+        write!(f, "{}", reason)
+    }
 }
 
 fn find_closing(interpretable: &[u8], from: usize) -> std::result::Result<usize, InterpretationError> {
@@ -47,19 +60,19 @@ impl Interpreter {
             let ch = unsafe { interpretable.get_unchecked(i) }.to_owned() as char;
             i = match ch {
                 '+' => {
-                    self.inc();
+                    self.buf[self.pos] += 1;
                     i + 1
                 }
                 '-' => {
-                    self.dec();
+                    self.buf[self.pos] -= 1;
                     i + 1
                 }
                 '>' => {
-                    self.move_right();
+                    self.pos += 1;
                     i + 1
                 }
                 '<' => {
-                    self.move_left();
+                    self.pos -= 1;
                     i + 1
                 }
                 '.' => {
@@ -85,21 +98,5 @@ impl Interpreter {
             }
         }
         Ok(result)
-    }
-
-    fn inc(&mut self) {
-        self.buf[self.pos] += 1;
-    }
-
-    fn dec(&mut self) {
-        self.buf[self.pos] -= 1;
-    }
-
-    fn move_left(&mut self) {
-        self.pos -= 1;
-    }
-
-    fn move_right(&mut self) {
-        self.pos += 1;
     }
 }
