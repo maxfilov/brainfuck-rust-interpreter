@@ -1,5 +1,5 @@
+use std::io::Read;
 mod brainfuck;
-mod io;
 
 #[derive(Debug)]
 struct AppError {
@@ -25,7 +25,8 @@ impl From<brainfuck::InterpretationError> for AppError {
 }
 
 fn main() -> std::result::Result<(), AppError> {
-    let source_code = io::get_source_code(&mut std::io::stdin())?;
+    let mut source_code= String::new();
+    std::io::stdin().read_to_string(&mut source_code)?;
     let mut interpreter = brainfuck::Interpreter::new();
     let result = interpreter.interpret(source_code)?;
     println!("{}", result);
